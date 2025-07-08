@@ -1,3 +1,74 @@
+WEBSITE2PDF+CHAGEDETECTION PIPELINE/
+├── BAH 2025/
+│   ├── .vscode/
+│   ├── changedetection.io/
+│   │   └── website-se-leke-pdf-tak/
+│   │       ├── output/
+│   │       │   ├── changes.json
+│   │       │   ├── changes.pdf
+│   │       │   ├── combined_1.pdf
+│   │       │   ├── combined_initial.pdf
+│   │       │   ├── latest.pdf
+│   │       │   ├── master_structured_content.json
+│   │       ├── .dockerignore
+│   │       ├── .env
+│   │       ├── .gitignore
+│   │       ├── Dockerfile
+│   │       ├── initialize_master_file.py
+│   │       ├── json_merger.py
+│   │       ├── README.md
+│   │       ├── requirements.txt
+│   │       ├── url_cache.json
+│   │       ├── webhook_server.py
+│   │       └── website-to-pdf.py
+│   ├── Document-Based-GraphRag/
+│   │   └── Document-Based-GraphRag/
+│   │       └── src/
+│   │           ├── analysis/
+│   │           │   ├── __init__.py
+│   │           │   ├── header_detection.py
+│   │           │   ├── models.py
+│   │           │   ├── output_utils.py
+│   │           │   ├── pdf_parser.py
+│   │           │   ├── README.md
+│   │           │   ├── text_utils.py
+│   │           │   └── toc_extractor.py
+│   │           ├── ui/
+│   │           ├── utils/
+│   │           ├── __init__.py
+│   │           ├── ingest.py
+│   │           ├── parse_pdf.py
+│   │           ├── query_api.py
+│   │           ├── query.py
+│   │           └── test_query.py
+│   ├── MOSDACportal/
+│   │   ├── frontend/
+│   │   │   └── node_modules/
+│   │   ├── node_modules/
+│   │   ├── public/
+│   │   ├── src/
+│   │   │   ├── assets/
+│   │   │   └── components/
+│   │   │       ├── chatbot.jsx
+│   │   │       ├── datavisualization.jsx
+│   │   │       ├── knowledgegraph.jsx
+│   │   │       ├── portal.jsx
+│   │   │       └── satellitetracker.jsx
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   ├── index.html
+│   │   ├── main.jsx
+│   │   ├── .gitignore
+│   │   ├── eslint.config.js
+│   │   └── package-lock.json
+│   └── venv/
+└── .gitignore
+
+
+
+
+
 ## Project Setup and Running Instructions
 
 This guide provides instructions to set up and run the backend (Flask server) and frontend (React application) components of your project.
