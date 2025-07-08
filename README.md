@@ -1,7 +1,6 @@
 ```
 WEBSITE2PDF+CHAGEDETECTION PIPELINE/
 ├── BAH 2025/
-│   ├── .vscode/
 │   ├── changedetection.io/
 │   │   └── website-se-leke-pdf-tak/
 │   │       ├── output/
@@ -11,16 +10,11 @@ WEBSITE2PDF+CHAGEDETECTION PIPELINE/
 │   │       │   ├── combined_initial.pdf
 │   │       │   ├── latest.pdf
 │   │       │   ├── master_structured_content.json
-│   │       ├── .dockerignore
-│   │       ├── .env
-│   │       ├── .gitignore
-│   │       ├── Dockerfile
 │   │       ├── initialize_master_file.py
 │   │       ├── json_merger.py
-│   │       ├── README.md
-│   │       ├── requirements.txt
+│   │       ├── requirements.txt      ( Make sure to install the requirements)
 │   │       ├── url_cache.json
-│   │       ├── webhook_server.py
+│   │       ├── webhook_server.py     (Main backend logic file)
 │   │       └── website-to-pdf.py
 │   ├── Document-Based-GraphRag/
 │   │   └── Document-Based-GraphRag/
@@ -31,10 +25,8 @@ WEBSITE2PDF+CHAGEDETECTION PIPELINE/
 │   │           │   ├── models.py
 │   │           │   ├── output_utils.py
 │   │           │   ├── pdf_parser.py
-│   │           │   ├── README.md
 │   │           │   ├── text_utils.py
 │   │           │   └── toc_extractor.py
-│   │           ├── ui/
 │   │           ├── utils/
 │   │           ├── __init__.py
 │   │           ├── ingest.py
@@ -43,8 +35,6 @@ WEBSITE2PDF+CHAGEDETECTION PIPELINE/
 │   │           ├── query.py
 │   │           └── test_query.py
 │   ├── MOSDACportal/
-│   │   ├── frontend/
-│   │   │   └── node_modules/
 │   │   ├── node_modules/
 │   │   ├── public/
 │   │   ├── src/
