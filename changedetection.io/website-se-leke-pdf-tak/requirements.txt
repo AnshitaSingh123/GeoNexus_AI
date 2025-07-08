@@ -1,0 +1,11 @@
+flask
+tqdm
+requests
+pdfkit
+bs4
+pyppeteer
+pypdf
+lxml
+flask
+
+# manually install wkhtmltopdf
