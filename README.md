@@ -1,3 +1,5 @@
+## Project Directory Structure
+
 ```
 WEBSITE2PDF+CHAGEDETECTION PIPELINE/
 ├── BAH 2025/
