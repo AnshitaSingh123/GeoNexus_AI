@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./BAH 2025/Document-Based-GraphRag/Document-Based-GraphRag/src"
+    ]
+}
