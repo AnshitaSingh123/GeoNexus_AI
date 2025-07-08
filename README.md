@@ -34,6 +34,7 @@ WEBSITE2PDF+CHAGEDETECTION PIPELINE/
 │   │           ├── query_api.py
 │   │           ├── query.py
 │   │           └── test_query.py
+│   │           ├── requirements.txt      ( Make sure to install the requirements)
 │   ├── MOSDACportal/
 │   │   ├── node_modules/
 │   │   ├── public/
