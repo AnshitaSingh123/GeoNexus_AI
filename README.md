@@ -1,4 +1,4 @@
-#Project Setup and Running Instructions
+##Project Setup and Running Instructions
 
 This guide provides instructions to set up and run the backend (Flask server) and frontend (React application) components of your project.
 
