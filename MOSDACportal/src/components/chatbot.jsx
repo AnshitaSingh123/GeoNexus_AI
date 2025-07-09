@@ -83,34 +83,59 @@ const PageWrapper = ({ children, setPage }) => (
     </div>
 );
 
-// Dark Message Bubble
-const MessageBubble = ({ message, isUser }) => (
-    <div className={`flex items-end gap-3 ${isUser ? 'justify-end' : 'justify-start'} group`}>
-        {!isUser && (
-            <div className="flex-shrink-0 mb-1">
-                <AIAssistantIcon />
-            </div>
-        )}
-        
-        <div className={`max-w-md transform transition-all duration-200 hover:scale-[1.02] ${
-            isUser ? 'hover:shadow-lg' : 'hover:shadow-md'
-        }`}>
-            <div className={`px-4 py-3 rounded-2xl ${
-                isUser 
-                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-md shadow' 
-                : 'bg-gray-700 border border-gray-600 text-gray-100 rounded-bl-md shadow-sm'
+// Dark Message Bubble with TTS controls
+const MessageBubble = ({ message, isUser, onSpeak, isSpeaking, currentSpeakingId }) => {
+    const isCurrentlySpeaking = currentSpeakingId === message.id && isSpeaking;
+    
+    return (
+        <div className={`flex items-end gap-3 ${isUser ? 'justify-end' : 'justify-start'} group`}>
+            {!isUser && (
+                <div className="flex-shrink-0 mb-1">
+                    <AIAssistantIcon />
+                </div>
+            )}
+            
+            <div className={`max-w-md transform transition-all duration-200 hover:scale-[1.02] ${
+                isUser ? 'hover:shadow-lg' : 'hover:shadow-md'
             }`}>
-                <p className="text-sm leading-relaxed">{message.text}</p>
+                <div className={`px-4 py-3 rounded-2xl ${
+                    isUser 
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-md shadow' 
+                    : 'bg-gray-700 border border-gray-600 text-gray-100 rounded-bl-md shadow-sm'
+                }`}>
+                    <p className="text-sm leading-relaxed">{message.text}</p>
+                    
+                    {/* TTS controls for bot messages */}
+                    {!isUser && (
+                        <div className="mt-2 flex justify-end">
+                            <button 
+                                onClick={() => onSpeak(message)}
+                                className={`p-1 rounded-full ${isCurrentlySpeaking ? 'bg-red-500/20' : 'bg-blue-500/20'} hover:bg-blue-500/30 transition-colors`}
+                                title={isCurrentlySpeaking ? "Stop playback" : "Listen to response"}
+                            >
+                                {isCurrentlySpeaking ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
+            
+            {isUser && (
+                <div className="flex-shrink-0 mb-1">
+                    <UserIcon />
+                </div>
+            )}
         </div>
-        
-        {isUser && (
-            <div className="flex-shrink-0 mb-1">
-                <UserIcon />
-            </div>
-        )}
-    </div>
-);
+    );
+};
 
 // Dark Typing Indicator
 const TypingIndicator = () => (
@@ -160,7 +185,7 @@ const GeometricDecor = () => {
     );
 };
 
-// Main Chatbot Component with Dark UI
+// Main Chatbot Component with Dark UI and Speech Recognition
 export default function ChatbotPage({ setPage }) {
     const [messages, setMessages] = useState([
         {
@@ -171,6 +196,11 @@ export default function ChatbotPage({ setPage }) {
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [currentSpeakingId, setCurrentSpeakingId] = useState(null);
+    const recognitionRef = useRef(null);
+    const speechSynthesisRef = useRef(null);
     const chatEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -181,46 +211,121 @@ export default function ChatbotPage({ setPage }) {
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleSendMessage = async (text) => {
-    const content = text.trim();
-    if (!content) return;
+    // Clean up speech synthesis on unmount
+    useEffect(() => {
+        return () => {
+            if (speechSynthesisRef.current) {
+                window.speechSynthesis.cancel();
+            }
+        };
+    }, []);
 
-    const newMessage = {
-        id: messages.length + 1,
-        sender: 'user',
-        text: content,
+    const handleSendMessage = (text) => {
+        const content = text.trim();
+        if (!content) return;
+
+        const newMessage = {
+            id: messages.length + 1,
+            sender: 'user',
+            text: content,
+        };
+        setMessages(prev => [...prev, newMessage]);
+        setInputValue('');
+        
+        setIsTyping(true);
+        setTimeout(() => {
+            const botResponse = {
+                id: messages.length + 2,
+                sender: 'bot',
+                text: `Thank you for your question about "${content}". Let me analyze this and provide you with insights based on the available data.`,
+            };
+            setMessages(prev => [...prev, botResponse]);
+            setIsTyping(false);
+        }, 2000);
     };
-    setMessages(prev => [...prev, newMessage]);
-    setInputValue('');
-    setIsTyping(true);
 
-    try {
-        const response = await fetch("http://localhost:5001/api/query", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ query: content }),
-        });
+    const startSpeechRecognition = () => {
+        if (isListening) {
+            stopSpeechRecognition();
+            return;
+        }
 
-        const data = await response.json();
-        const botResponse = {
-            id: messages.length + 2,
-            sender: 'bot',
-            text: data.llm_response || data.answer || "Sorry, I couldn't find an answer.",
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Speech recognition is not supported in your browser.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            setIsListening(true);
+            setInputValue("Listening...");
         };
 
-        setMessages(prev => [...prev, botResponse]);
-    } catch (error) {
-        setMessages(prev => [...prev, {
-            id: messages.length + 2,
-            sender: 'bot',
-            text: "Error fetching response from backend.",
-        }]);
-    }
+        recognition.onresult = (event) => {
+            const transcript = Array.from(event.results)
+                .map(result => result[0])
+                .map(result => result.transcript)
+                .join('');
+            
+            setInputValue(transcript);
+        };
 
-    setIsTyping(false);
-};
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error", event.error);
+            setIsListening(false);
+            setInputValue("");
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+            if (inputValue && inputValue !== "Listening...") {
+                handleSendMessage(inputValue);
+            }
+        };
+
+        recognition.start();
+        recognitionRef.current = recognition;
+    };
+
+    const stopSpeechRecognition = () => {
+        if (recognitionRef.current) {
+            recognitionRef.current.stop();
+        }
+        setIsListening(false);
+    };
+
+    const handleSpeak = (message) => {
+        if (isSpeaking && currentSpeakingId === message.id) {
+            // If this message is currently speaking, stop it
+            window.speechSynthesis.cancel();
+            setIsSpeaking(false);
+            setCurrentSpeakingId(null);
+            return;
+        }
+
+        // Stop any currently playing speech
+        window.speechSynthesis.cancel();
+
+        // Start speaking the new message
+        const utterance = new SpeechSynthesisUtterance(message.text);
+        utterance.onend = () => {
+            setIsSpeaking(false);
+            setCurrentSpeakingId(null);
+        };
+        utterance.onerror = () => {
+            setIsSpeaking(false);
+            setCurrentSpeakingId(null);
+        };
+
+        window.speechSynthesis.speak(utterance);
+        setIsSpeaking(true);
+        setCurrentSpeakingId(message.id);
+    };
 
     const quickSuggestions = [
         'Recent satellite missions',
@@ -254,6 +359,9 @@ export default function ChatbotPage({ setPage }) {
                             key={msg.id} 
                             message={msg} 
                             isUser={msg.sender === 'user'} 
+                            onSpeak={handleSpeak}
+                            isSpeaking={isSpeaking}
+                            currentSpeakingId={currentSpeakingId}
                         />
                     ))}
                     {isTyping && <TypingIndicator />}
@@ -276,24 +384,49 @@ export default function ChatbotPage({ setPage }) {
                     </div>
                 )}
                 
-                {/* Input */}
-                <div className="relative">
+                {/* Input with Mic Button */}
+                <div className="relative flex items-center">
                     <input 
                         type="text" 
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(inputValue)}
-                        placeholder="Type your message..." 
-                        className="w-full bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-2xl py-3 pl-4 pr-12 text-gray-200 placeholder-gray-400 transition-all duration-200"
+                        placeholder={isListening ? "Listening..." : "Type your message..."} 
+                        className="flex-grow bg-gray-700 border border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-2xl py-3 pl-4 pr-12 text-gray-200 placeholder-gray-400 transition-all duration-200"
                     />
                     
+                    {/* Send Button */}
                     <button 
                         onClick={() => handleSendMessage(inputValue)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-colors duration-200 flex items-center justify-center disabled:bg-gray-600 disabled:cursor-not-allowed"
+                        className="absolute right-14 top-1/2 -translate-y-1/2 w-8 h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-colors duration-200 flex items-center justify-center disabled:bg-gray-600 disabled:cursor-not-allowed"
                         disabled={!inputValue.trim() || isTyping}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                        </svg>
+                    </button>
+                    
+                    {/* Microphone Button */}
+                    <button
+                        onClick={startSpeechRecognition}
+                        className={`ml-2 w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-200 ${
+                            isListening 
+                                ? 'bg-red-600 hover:bg-red-500 animate-pulse' 
+                                : 'bg-gray-700 hover:bg-gray-600 border border-gray-600'
+                        }`}
+                        title={isListening ? "Stop listening" : "Start voice input"}
+                    >
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className="h-5 w-5" 
+                            viewBox="0 0 20 20" 
+                            fill="currentColor"
+                        >
+                            <path 
+                                fillRule="evenodd" 
+                                d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" 
+                                clipRule="evenodd" 
+                            />
                         </svg>
                     </button>
                 </div>
