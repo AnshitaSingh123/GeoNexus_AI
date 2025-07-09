@@ -153,7 +153,7 @@ The backend is a Flask application responsible for processing web changes, conve
     ```
 3.  **Install required Python packages:**
     ```
-    pip install Flask Flask-Cors PyMuPDF neo4j
+    pip install Flask Flask-Cors PyMuPDF neo4j google-generativeai
     ```
     * `Flask`: The web framework.
     * `Flask-Cors`: For handling Cross-Origin Resource Sharing.
@@ -212,6 +212,7 @@ The frontend is a React application that likely interacts with the backend for d
     ```
 2.  **Start the React development server:**
     ```
+    npm install
     npm run dev
     ```
     This will typically start the frontend on `http://localhost:5173/` (or a similar port). The terminal will show you the local URL where the application is accessible.
