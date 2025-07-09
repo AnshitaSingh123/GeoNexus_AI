@@ -194,7 +194,7 @@ const Header = ({ setPage, theme, toggleTheme }) => {
               <LogoIcon />
             </div>
             <span className="text-xl font-bold text-gray-800 dark:text-white tracking-wide transition-colors duration-300">
-              MOSDAC AI Portal
+              GeoNexus AI
             </span>
           </div>
 
