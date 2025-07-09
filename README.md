@@ -86,11 +86,65 @@ Before you begin, ensure you have the following installed:
     * **Linux/macOS:** Install via your package manager (e.g., `sudo apt-get install wkhtmltopdf` or `brew install wkhtmltopdf`).
 * **Neo4j Database (Optional but Recommended)**: If you plan to use the graph RAG features, you'll need a running Neo4j instance. Refer to the Neo4j documentation for installation: [https://neo4j.com/download/](https://neo4j.com/download/)
 
-## 3. Backend Setup and Running
+## 3. ChangeDetection.io Setup (Dockerized)
+
+We'll use `changedetection.io` to monitor websites and notify your backend upon updates.
+
+### 3.1 Clone the official repository
+
+```bash
+cd "BAH 2025"
+git clone https://github.com/dgtlmoon/changedetection.io.git
+cd changedetection.io
+```
+
+### 3.2 Create a Docker Compose file
+
+Inside the `changedetection.io/` directory, create or edit `docker-compose.yml`:
+
+```yaml
+version: '3.3'
+
+services:
+  changedetection:
+    image: ghcr.io/dgtlmoon/changedetection.io
+    container_name: changedetection
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./datastore:/datastore
+    environment:
+      - BASE_URL=http://localhost:5000
+    restart: unless-stopped
+```
+
+### 3.3 Launch Changedetection.io
+
+```bash
+docker-compose up -d
+```
+
+- Access the web interface at: http://localhost:5000
+
+### 3.4 Configure Watch and Webhook
+
+1. Open the UI and **Add a new site** to monitor.
+2. Scroll to **Notification > Webhook URL**.
+3. Set it to:
+
+```bash
+http://host.docker.internal:5001/webhook  # Windows/macOS
+```
+
+> On Linux, use your host IP address or Docker bridge network.
+
+---
+
+## 4. Backend Setup and Running
 
 The backend is a Flask application responsible for processing web changes, converting them to structured data, and updating a Neo4j knowledge graph.
 
-### 3.1. Install Python Dependencies
+### 4.1. Install Python Dependencies
 
 1.  **Open your terminal or command prompt.**
 2.  **Navigate to the backend directory:**
@@ -106,7 +160,7 @@ The backend is a Flask application responsible for processing web changes, conve
     * `PyMuPDF` (includes `fitz`): For PDF parsing.
     * `neo4j`: The Neo4j Python driver.
 
-### 3.2. Configure `wkhtmltopdf` Path
+### 4.2. Configure `wkhtmltopdf` Path
 
 * Open `webhook_server.py` located in `BAH 2025/changedetection.io/website-se-leke-pdf-tak`.
 * Locate the `WKHTMLTOPDF_PATH` variable and ensure it points to the correct executable path on your system.
@@ -116,7 +170,7 @@ The backend is a Flask application responsible for processing web changes, conve
     # WKHTMLTOPDF_PATH = "/usr/local/bin/wkhtmltopdf"
     ```
 
-### 3.3. Run the Backend Server
+### 4.3. Run the Backend Server
 
 1.  **Ensure you are still in the backend directory:**
     ```
@@ -133,11 +187,11 @@ The backend is a Flask application responsible for processing web changes, conve
     ```
     Keep this terminal window open as long as you want the backend to run.
 
-## 4. Frontend Setup and Running
+## 5. Frontend Setup and Running
 
 The frontend is a React application that likely interacts with the backend for data visualization and querying.
 
-### 4.1. Install Node.js Dependencies
+### 5.1. Install Node.js Dependencies
 
 1.  **Open a new terminal or command prompt window.**
 2.  **Navigate to the frontend directory:**
@@ -150,7 +204,7 @@ The frontend is a React application that likely interacts with the backend for d
     ```
     This command reads `package.json` and installs all necessary dependencies (e.g., React, Vite, etc.).
 
-### 4.2. Run the Frontend Development Server
+### 5.2. Run the Frontend Development Server
 
 1.  **Ensure you are still in the frontend directory:**
     ```
@@ -162,7 +216,7 @@ The frontend is a React application that likely interacts with the backend for d
     ```
     This will typically start the frontend on `http://localhost:5173/` (or a similar port). The terminal will show you the local URL where the application is accessible.
 
-## 5. Usage
+## 6. Usage
 
 * **Backend (`webhook_server.py`):**
     * Listens for POST requests on `/webhook` (e.g., from `changedetection.io`) to process website changes.
