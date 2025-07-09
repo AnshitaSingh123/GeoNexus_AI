@@ -90,11 +90,10 @@ Before you begin, ensure you have the following installed:
 
 We'll use `changedetection.io` to monitor websites and notify your backend upon updates.
 
-### 3.1 Clone the official repository
+### 3.1 Go to Changedetection.io folder
 
 ```bash
 cd "BAH 2025"
-git clone https://github.com/dgtlmoon/changedetection.io.git
 cd changedetection.io
 ```
 
